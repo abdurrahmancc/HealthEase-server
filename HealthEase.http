@@ -1,0 +1,6 @@
+@HealthEase_HostAddress = http://localhost:5151
+
+GET {{HealthEase_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

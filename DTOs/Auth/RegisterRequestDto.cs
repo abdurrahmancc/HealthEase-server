@@ -1,0 +1,22 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace HealthEase.DTOs.Auth
+{
+    public class RegisterRequestDto
+    {
+        [Required]
+        [MinLength(2, ErrorMessage = "Minimum 2 length of FirstName")]
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+        [Required]
+        [MinLength(6, ErrorMessage = "Password must be at least 6 characters long")]
+        public string Password { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Country { get; set; }
+        public string CountryCode { get; set; }
+    }
+}
