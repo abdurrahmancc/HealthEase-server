@@ -1,5 +1,8 @@
-﻿namespace HealthEase.Models.Auth
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace HealthEase.Models.Auth
 {
+    [Table("AspNetRoles")]
     public class ApplicationRole
     {
         public Guid Id { get; set; }

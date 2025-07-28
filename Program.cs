@@ -1,27 +1,34 @@
+using CloudinaryDotNet;
 using HealthEase.Data;
 using HealthEase.Helpers;
 using HealthEase.Interfaces;
 using HealthEase.Services.Auth;
+using HealthEase.Services.FilesManagement;
 using HealthEase.Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IRegisterService, RegisterService>();
+builder.Services.AddScoped<FilestService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();
+builder.Services.AddHttpClient<FilesManagementHelper>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.Configure<ApiBehaviorOptions>(Options => {
-    Options.InvalidModelStateResponseFactory = context => {
+builder.Services.Configure<ApiBehaviorOptions>(Options =>
+{
+    Options.InvalidModelStateResponseFactory = context =>
+    {
         var errors = context.ModelState
                 .Where(e => e.Value != null && e.Value.Errors.Count > 0)
                 .SelectMany(e => e.Value?.Errors != null ? e.Value.Errors.Select(x => x.ErrorMessage) : new List<string>()).ToList();
@@ -29,6 +36,18 @@ builder.Services.Configure<ApiBehaviorOptions>(Options => {
         return new BadRequestObjectResult(ApiResponse<Object>.ErrorResponse(errors, 400, "Validation error"));
     };
 });
+
+
+
+//cloudinary register
+var cloudinaryAccount = new Account(
+    builder.Configuration["CLOUDINARY:CloudName"],
+    builder.Configuration["CLOUDINARY:ApiKey"],
+    builder.Configuration["CLOUDINARY:ApiSecret"]
+);
+Cloudinary cloudinary = new Cloudinary(cloudinaryAccount);
+cloudinary.Api.Secure = true;
+builder.Services.AddSingleton(cloudinary);
 
 // Swagger Configuration
 builder.Services.AddSwaggerGen(c =>
@@ -87,6 +106,16 @@ builder.Services.AddAuthentication(options =>
             {
                 Console.WriteLine("Token invalid: " + context.Exception.Message);
                 return Task.CompletedTask;
+            },
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Cookies["accessToken"];
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
             }
         };
     });
@@ -96,7 +125,23 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials();
+        });
+});
+
+
+
 var app = builder.Build();
+
+app.UseCors("AllowLocalhost");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -106,6 +151,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

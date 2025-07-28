@@ -2,6 +2,7 @@
 using HealthEase.Interfaces;
 using HealthEase.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 
 
@@ -21,8 +22,17 @@ namespace HealthEase.Controllers.Auth
         [HttpPost]
         public async Task<ActionResult> Register(RegisterRequestDto registerData)
         {
-            var result = await _registerService.RegisterUserService(registerData);
-            return Ok(ApiResponse<RegisterResponseDto>.SuccessResponse(result, 200, "Register successfull"));
+            try
+            {
+                var result = await _registerService.RegisterUserService(registerData);
+                return Ok(ApiResponse<RegisterResponseDto>.SuccessResponse(result, 200, "Register successfull"));
+            }
+            catch (Exception ex)
+            {
+                return Ok(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Validation failed"));
+            }
+
+
         }
     }
 }
