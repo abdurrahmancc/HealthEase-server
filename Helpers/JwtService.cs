@@ -29,6 +29,7 @@ namespace HealthEase.Helpers
 
             var claimsDictionary = new Dictionary<string, string>
                 {
+                    { "UserRole", userClaims.Role ?? string.Empty},
                     { "Country", userClaims.Country ?? string.Empty},
                     { "CountryCode", userClaims.CountryCode ?? string.Empty},
                     { "FirstName", userClaims.FirstName ?? string.Empty},
@@ -53,7 +54,7 @@ namespace HealthEase.Helpers
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],
                 claims,
-                expires: DateTime.UtcNow.AddMinutes(60),
+                expires: DateTime.UtcNow.AddDays(30),
                 signingCredentials: signIn
             );
 

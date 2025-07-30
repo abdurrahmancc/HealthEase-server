@@ -22,32 +22,24 @@ namespace HealthEase.Services.Auth
         }
         public async Task<LoginResponseDto> LoginUserService(LoginRequestDto loginData)
         {
-
-            var user = await _appDbContext.Users.FirstOrDefaultAsync(u => (u.Email == loginData.Email || u.Username == loginData.Email) && u.Password == loginData.Password);
-            if (user != null)
+            try
             {
-                var userClaims = new UserJwtClaimsDto
+                var user = await _appDbContext.Users.FirstOrDefaultAsync(u => (u.Email == loginData.Email || u.Username == loginData.Email) && u.Password == loginData.Password);
+                if (user != null)
                 {
-                    Id = user.Id,
-                    Email = user.Email,
-                    Username = user.Username,
-                    Role = user.Role,
-                    Country = user.Country,
-                    CountryCode = user.CountryCode,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                };
-                var jwtToken = _jwtService.GenerateJwtToken(userClaims);
-                var response = new LoginResponseDto
-                {
-                    Id = user.Id,
-                    UserName = user.Username,
-                    Status = user.Status,
-                    Token = jwtToken
-                };
-                return response;
+                    var userClaims = _mapper.Map<UserJwtClaimsDto>(user);
+                    var jwtToken = _jwtService.GenerateJwtToken(userClaims);
+                    var result = _mapper.Map<LoginResponseDto>(user);
+                    result.Token = jwtToken;
+                    return result;
+                }
+                return null;
             }
-            return null;
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while logging in.", ex);
+            }
+
         }
     }
 }

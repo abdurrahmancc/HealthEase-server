@@ -11,7 +11,8 @@ namespace HealthEase.Profiles.Auth
             CreateMap<LoginModel, LoginRequestDto>();
             CreateMap<LoginModel, LoginResponseDto>();
             CreateMap<LoginRequestDto, LoginResponseDto>();
-            CreateMap<LoginResponseDto, LoginResponseDto>();
+            CreateMap<UserModel, LoginResponseDto>();
+            CreateMap<UserModel, UserJwtClaimsDto>();
             CreateMap<UserDto, UserJwtClaimsDto>();
         }
     }
