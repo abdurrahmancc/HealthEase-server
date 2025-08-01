@@ -10,6 +10,7 @@ using HealthEase.Enums;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
+using HealthEase.Helpers;
 
 namespace HealthEase.Services.Auth
 {
@@ -18,11 +19,13 @@ namespace HealthEase.Services.Auth
         private readonly AppDbContext _appDbContext;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly FilesManagementHelper _filesManagementHelper;
 
-        public UserService(AppDbContext appDbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor) {
+        public UserService(AppDbContext appDbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, FilesManagementHelper filesManagementHelper) {
             _appDbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+            _filesManagementHelper = filesManagementHelper;
         }
 
         public async Task<UserDto> GetLoginUserService()
@@ -151,6 +154,39 @@ namespace HealthEase.Services.Auth
             catch (Exception ex)
             {
                 throw new ApplicationException("An error occurred in.", ex);
+            }
+        }
+
+
+        public async Task<string> UpdatePhotoUrlServiceeAsync(IFormFile file)
+        {
+            try
+            {
+                var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("User is not authorized");
+
+                if (!Guid.TryParse(userId, out var parsedUserId)) throw new ArgumentException("Invalid user ID.");
+
+                var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Id == parsedUserId);
+
+                if (user == null) throw new InvalidOperationException("User not found.");
+
+                if (!string.IsNullOrEmpty(user.PhotoUrl))
+                {
+                    await _filesManagementHelper.DeleteImageHelperAsync(user.PhotoUrl);
+                }
+
+                var imageUrl = await _filesManagementHelper.UploadImageAsync(file);
+                user.PhotoUrl = imageUrl;
+                _appDbContext.Users.Update(user);
+                await _appDbContext.SaveChangesAsync();
+
+                return imageUrl;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 

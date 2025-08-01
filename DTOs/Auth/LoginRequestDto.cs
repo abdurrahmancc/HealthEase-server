@@ -5,7 +5,8 @@ namespace HealthEase.DTOs.Auth
     public class LoginRequestDto
     {
         [Required]
-        [EmailAddress(ErrorMessage = "Invalid email address")]
+        [RegularExpression(@"^([a-zA-Z0-9_]{3,20}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$",
+        ErrorMessage = "Provide valid username (3‑20 chars) or email.")]
         public string Email { get; set; }
 
 

@@ -31,23 +31,17 @@ namespace HealthEase.Services.FilesManagement
                     throw new ArgumentException("Invalid user ID.");
                 }
 
-
-
                 var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Id == parsedUserId);
-
 
                 if (user == null)
                 {
                     throw new InvalidOperationException("User not found.");
                 }
 
-
                 if (!string.IsNullOrEmpty(user.PhotoUrl))
                 {
                     await _filesManagementHelper.DeleteImageHelperAsync(user.PhotoUrl);
                 }
-
-
 
                 var imageUrl = await _filesManagementHelper.UploadImageAsync(file);
                 user.PhotoUrl = imageUrl;

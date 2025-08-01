@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Metrics;
 using HealthEase.DTOs;
+using HealthEase.Services.FilesManagement;
 
 namespace HealthEase.Controllers.Auth
 {
@@ -105,6 +106,30 @@ namespace HealthEase.Controllers.Auth
             catch (Exception ex)
             {
                 return StatusCode(500, ApiResponse<object>.ErrorResponse(new List<string> { "An unexpected error occurred." }, 500, "Unexpected Error"));
+            }
+        }
+
+        [HttpPost("UpdatePhotoUrl")]
+        [Authorize]
+        public async Task<IActionResult> UpdatePhotoUrl(IFormFile file)
+        {
+            try
+            {
+                var filePath = await _userService.UpdatePhotoUrlServiceeAsync(file);
+
+                return Ok(ApiResponse<string>.SuccessResponse(filePath, 200, "successful"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 401, "Unauthorized"));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Invalid input"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Validation failed"));
             }
         }
 
