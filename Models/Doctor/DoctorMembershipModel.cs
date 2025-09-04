@@ -16,3 +16,4 @@ namespace HealthEase.Models.Doctor
         public DoctorModel Doctor { get; set; }
     }
 }
+    

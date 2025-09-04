@@ -1,18 +1,18 @@
 ﻿using HealthEase.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HealthEase.Models.Doctor
+namespace HealthEase.DTOs.Doctor
 {
-    public class DoctorExperienceModel : IValidatableObject
+    public class DoctorExperienceCreateDto
     {
-        [Key]
         public Guid ExperienceId { get; set; }
 
         [Required]
-        public string Title { get; set; }        
-        
+        public string Title { get; set; }
+
         public string HospitalLogo { get; set; }
+
+        public IFormFile? HospitalLogoFile { get; set; }
 
         [Required]
         public string Hospital { get; set; }
@@ -44,9 +44,6 @@ namespace HealthEase.Models.Doctor
             }
         }
 
-        public Guid DoctorId { get; set; }
-
-        [ForeignKey("DoctorId")]
-        public DoctorModel Doctor { get; set; }
+        //public Guid DoctorId { get; set; }
     }
 }

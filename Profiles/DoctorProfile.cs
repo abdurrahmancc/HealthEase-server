@@ -11,9 +11,28 @@ namespace HealthEase.Profiles
             CreateMap<DoctorBasicInfoModel, DoctorBasicInfoCreateDto>();
             CreateMap<DoctorBasicInfoCreateDto, DoctorBasicInfoModel>();
             CreateMap<DoctorBasicInfoCreateDto, DoctorMembershipModel>();
+
             CreateMap<DoctorMembershipModel, DoctorBasicInfoCreateDto>();
             CreateMap<DoctorMembershipModel, DoctorMembershipCreateDto>();
             CreateMap<DoctorMembershipCreateDto, DoctorMembershipModel>();
+            CreateMap<DoctorMembershipModel, DoctorMembershipReadDto>();
+            CreateMap<DoctorMembershipReadDto, DoctorMembershipModel>();
+            CreateMap<DoctorMembershipCreateDto, DoctorMembershipReadDto>();
+            CreateMap<DoctorMembershipReadDto, DoctorMembershipCreateDto>();
+
+            CreateMap<DoctorExperienceCreateDto, DoctorExperienceModel>();
+            CreateMap<DoctorExperienceCreateDto, DoctorExperienceReadDto>();
+            CreateMap<DoctorExperienceModel, DoctorExperienceReadDto>();
+
+            CreateMap<DoctorEducationModel, DoctorEducationReadDto>();
+            CreateMap<DoctorEducationModel, DoctorEducationCreateDto>();
+            CreateMap<DoctorEducationCreateDto, DoctorEducationModel>();
+            CreateMap<DoctorEducationCreateDto, DoctorEducationReadDto>();
+
+            CreateMap<DoctorClinicCreateDto, DoctorClinicReadDto>();
+            CreateMap<DoctorClinicCreateDto, DoctorClinicModel>();
+            CreateMap<DoctorClinicModel, DoctorClinicCreateDto>();
+            CreateMap<DoctorClinicModel, DoctorClinicReadDto>();
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿namespace HealthEase.DTOs.Doctor
 {
-    public class DoctorMembershipCreateDto
+    public class DoctorMembershipReadDto
     {
-        public Guid? MembershipId { get; set; }
+        public Guid MembershipId { get; set; }
         public string Title { get; set; }
         public string About { get; set; }
-        public Guid? DoctorId { get; set; }
+        public Guid DoctorId { get; set; }
     }
 }

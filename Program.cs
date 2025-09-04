@@ -21,6 +21,7 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IRegisterService, RegisterService>();
 builder.Services.AddScoped<FilestService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IMasterDataService, MasterDataService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();

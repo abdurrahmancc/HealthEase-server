@@ -28,6 +28,5 @@ namespace HealthEase.DTOs.Doctor
         public bool IsVideoCallAvailable { get; set; }
         public string Country { get; set; }
         public string CountryCode { get; set; }
-        public List<DoctorMembershipCreateDto> DoctorMemberships { get; set; }
     }
 }
