@@ -27,6 +27,7 @@ namespace HealthEase.Services.Auth
             }
 
             var newUser = _mapper.Map<UserModel>(registerData);
+            newUser.Password = BCrypt.Net.BCrypt.HashPassword(registerData.Password);
             newUser.Id = Guid.NewGuid();
             newUser.LastLoginDate = DateTime.Now;
             newUser.CreateAt = DateTime.Now;

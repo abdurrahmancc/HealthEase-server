@@ -17,5 +17,11 @@ namespace HealthEase.Interfaces
         Task<List<DoctorEducationReadDto>> GetEducationsService(string userId);
         Task<List<DoctorClinicReadDto>> AddUpdateClinicsService(List<DoctorClinicCreateDto> clinics, string userId);
         Task<List<DoctorClinicReadDto>> GetClinicsService(string userId);
+        Task<List<DoctorBusinessHourReadDto>> AddUpdateBusinessHourService(List<DoctorBusinessHourCreateDto> businessHours, string userId);
+        Task<List<DoctorBusinessHourReadDto>> GetBusinessHoursService(string userId);
+        Task<List<DoctorServiceReadDto>> AddUpdateServicesService(List<DoctorServiceCreateDto> services, string userId);
+        Task<List<DoctorServiceReadDto>> GetServicesService(string userId);
+        Task<List<SocialMediaReadDto>> AddUpdateSocialMideaService(List<SocialMediaCreateDto> socials, string userId);
+        Task<List<SocialMediaReadDto>> GetSocialsService(string userId);
     }
 }

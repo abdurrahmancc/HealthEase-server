@@ -33,6 +33,22 @@ namespace HealthEase.Profiles
             CreateMap<DoctorClinicCreateDto, DoctorClinicModel>();
             CreateMap<DoctorClinicModel, DoctorClinicCreateDto>();
             CreateMap<DoctorClinicModel, DoctorClinicReadDto>();
+            
+            CreateMap<DoctorBusinessHourModel, DoctorBusinessHourCreateDto>();
+            CreateMap<DoctorBusinessHourCreateDto, DoctorBusinessHourModel>();
+            CreateMap<DoctorBusinessHourCreateDto, DoctorBusinessHourReadDto>();
+            CreateMap<DoctorBusinessHourModel, DoctorBusinessHourReadDto>();
+
+            CreateMap<DoctorServiceCreateDto, DoctorServiceModel>();
+            CreateMap<DoctorServiceCreateDto, DoctorServiceReadDto>();
+            CreateMap<DoctorServiceModel, DoctorServiceCreateDto>();
+            CreateMap<DoctorServiceModel, DoctorServiceReadDto>();
+
+
+            CreateMap<SocialMediaCreateDto, SocialMediaModel>();
+            CreateMap<SocialMediaModel, SocialMediaCreateDto>();
+            CreateMap<SocialMediaModel, SocialMediaReadDto>();
+            CreateMap<SocialMediaCreateDto, SocialMediaReadDto>();
         }
     }
 }

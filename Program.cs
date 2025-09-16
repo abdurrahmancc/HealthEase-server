@@ -23,6 +23,7 @@ builder.Services.AddScoped<FilestService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMasterDataService, MasterDataService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IDoctorHelper, DoctorHelper>();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();
 builder.Services.AddHttpClient<FilesManagementHelper>();

@@ -14,14 +14,15 @@ using HealthEase.Helpers;
 
 namespace HealthEase.Services.Auth
 {
-    public class UserService :IUserService
+    public class UserService : IUserService
     {
         private readonly AppDbContext _appDbContext;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly FilesManagementHelper _filesManagementHelper;
 
-        public UserService(AppDbContext appDbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, FilesManagementHelper filesManagementHelper) {
+        public UserService(AppDbContext appDbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor, FilesManagementHelper filesManagementHelper)
+        {
             _appDbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
@@ -42,7 +43,7 @@ namespace HealthEase.Services.Auth
         }
 
 
-        public async Task<PaginatedResult<UserDto>> GetUsersService( int pageNumber, int pageSize, string search , UserStatus? status , string role , string country)
+        public async Task<PaginatedResult<UserDto>> GetUsersService(int pageNumber, int pageSize, string search, UserStatus? status, string role, string country)
         {
             if (pageNumber < 1) pageNumber = 1;
             if (pageSize < 1) pageSize = 10;
@@ -104,11 +105,12 @@ namespace HealthEase.Services.Auth
         }
 
 
-      public async  Task<object> UpdateRoleService( Guid id, UserRole role)
+        public async Task<object> UpdateRoleService(Guid id, UserRole role)
         {
-            try {
+            try
+            {
                 var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
-                if(user == null)
+                if (user == null)
                 {
                     return new NotFoundObjectResult("User was not found");
                 }
@@ -117,10 +119,10 @@ namespace HealthEase.Services.Auth
                 _appDbContext.Users.Update(user);
                 await _appDbContext.SaveChangesAsync();
 
-                return new { message = "User role updated successfully.", userId = user.Id, role= user.Role };
+                return new { message = "User role updated successfully.", userId = user.Id, role = user.Role };
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new ApplicationException("An error occurred in.", ex);
             }
@@ -188,6 +190,41 @@ namespace HealthEase.Services.Auth
             {
                 throw;
             }
+        }
+
+
+        public async Task<LoginResponseDto> ChangePasswordService(ChangePasswordDto info)
+        {
+            try
+            {
+
+                var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("User is not authorized");
+
+                if (!Guid.TryParse(userId, out var parsedUserId)) throw new ArgumentException("Invalid user ID.");
+
+                var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Id == parsedUserId);
+
+                if (user == null) throw new InvalidOperationException("User not found.");
+
+                if (!BCrypt.Net.BCrypt.Verify(info.CurrentPassword, user.Password)) throw new UnauthorizedAccessException("Current password is incorrect");
+
+                if (info.NewPassword != info.ConfirmPassword) throw new ArgumentException("New password and confirm password do not match");
+
+                user.Password = BCrypt.Net.BCrypt.HashPassword(info.NewPassword);
+                user.UpdateAt =  DateTime.Now;
+
+                _appDbContext.Users.Update(user);
+                await _appDbContext.SaveChangesAsync();
+
+                return _mapper.Map<LoginResponseDto>(user);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
         }
 
     }

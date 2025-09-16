@@ -20,6 +20,9 @@ namespace HealthEase.Data
         public DbSet<DoctorEducationModel> DoctorEducations { get; set; }
         public DbSet<DoctorMembershipModel> DoctorMemberships { get; set; }
         public DbSet<DoctorClinicModel> DoctorClinics { get; set; }
+        public DbSet<DoctorBusinessHourModel> DoctorBusinessHours { get; set; }
+        public DbSet<DoctorServiceModel> DoctorServices { get; set; }
+        public DbSet<SocialMediaModel> SocialMediaLinks { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

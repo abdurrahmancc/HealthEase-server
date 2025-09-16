@@ -12,5 +12,6 @@ namespace HealthEase.Interfaces
         Task<UserDto> GetUserByIdService(Guid id);
         Task<UserDto> GetUserByEmailService(string email);
         Task<string> UpdatePhotoUrlServiceeAsync(IFormFile file);
+        Task<LoginResponseDto> ChangePasswordService(ChangePasswordDto info);
     }
 }

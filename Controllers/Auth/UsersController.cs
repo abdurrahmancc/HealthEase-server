@@ -133,5 +133,30 @@ namespace HealthEase.Controllers.Auth
             }
         }
 
+
+        [HttpPost("ChangePassword")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto info)
+        {
+            try
+            {
+                var user = await _userService.ChangePasswordService(info);
+
+                return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(user, 200, "successful"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 401, "Unauthorized"));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Invalid input"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Validation failed"));
+            }
+        }
+
     }
 }

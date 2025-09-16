@@ -24,8 +24,9 @@ namespace HealthEase.Services.Auth
         {
             try
             {
-                var user = await _appDbContext.Users.FirstOrDefaultAsync(u => (u.Email == loginData.Email || u.Username == loginData.Email) && u.Password == loginData.Password);
-                if (user != null)
+
+                var user = await _appDbContext.Users.FirstOrDefaultAsync(u => (u.Email == loginData.Email || u.Username == loginData.Email));
+                if (user != null && BCrypt.Net.BCrypt.Verify(loginData.Password, user.Password))
                 {
                     var userClaims = _mapper.Map<UserJwtClaimsDto>(user);
                     var jwtToken = _jwtService.GenerateJwtToken(userClaims);

@@ -305,6 +305,167 @@ namespace HealthEase.Controllers
             }
         }
 
+        [HttpPost("AddUpdateBusinessHours")]
+        [Authorize]
+        public async Task<ActionResult> AddUpdateBusinessHours([FromBody] List<DoctorBusinessHourCreateDto> doctorBusinessHours, [FromQuery] string userId)
+        {
+            try
+            {
+                Console.WriteLine("Count received: " + doctorBusinessHours.Count);
 
+                if (doctorBusinessHours.Count == 0)
+                {
+                    return BadRequest("No clinics data received. Check FormData field names.");
+                }
+
+                var info = await _doctorService.AddUpdateBusinessHourService(doctorBusinessHours, userId);
+                return Ok(ApiResponse<List<DoctorBusinessHourReadDto>>.SuccessResponse(info, 200, "successful"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 401, "Unauthorized"));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Invalid input"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Validation failed"));
+            }
+        }
+
+        [HttpGet("GetBusinessHours")]
+        [Authorize]
+        public async Task<ActionResult> GetBusinessHours([FromQuery] string userId)
+        {
+            try
+            {
+                var info = await _doctorService.GetBusinessHoursService(userId);
+                return Ok(ApiResponse<List<DoctorBusinessHourReadDto>>.SuccessResponse(info, 200, "successful"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 401, "Unauthorized"));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Invalid input"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Validation failed"));
+            }
+        }
+
+
+        [HttpPost("AddUpdateServices")]
+        [Authorize]
+        public async Task<ActionResult> AddUpdateServices([FromBody] List<DoctorServiceCreateDto> services, [FromQuery] string userId)
+        {
+            try
+            {
+                Console.WriteLine("Count received: " + services.Count);
+
+                if (services.Count == 0)
+                {
+                    return BadRequest("No clinics data received. Check FormData field names.");
+                }
+
+                var info = await _doctorService.AddUpdateServicesService(services, userId);
+                return Ok(ApiResponse<List<DoctorServiceReadDto>>.SuccessResponse(info, 200, "successful"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 401, "Unauthorized"));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Invalid input"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Validation failed"));
+            }
+        }
+
+
+        [HttpGet("GetServices")]
+        [Authorize]
+        public async Task<ActionResult> GetServices([FromQuery] string userId)
+        {
+            try
+            {
+                var info = await _doctorService.GetServicesService(userId);
+                return Ok(ApiResponse<List<DoctorServiceReadDto>>.SuccessResponse(info, 200, "successful"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 401, "Unauthorized"));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Invalid input"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Validation failed"));
+            }
+        }
+
+
+
+        [HttpPost("AddUpdateSocialMidea")]
+        [Authorize]
+        public async Task<ActionResult> AddUpdateSocialMidea([FromBody] List<SocialMediaCreateDto> socials, [FromQuery] string userId)
+        {
+            try
+            {
+                Console.WriteLine("Count received: " + socials.Count);
+
+                if (socials.Count == 0)
+                {
+                    return BadRequest("No social media data received. Check FormData field.");
+                }
+
+                var info = await _doctorService.AddUpdateSocialMideaService(socials, userId);
+                return Ok(ApiResponse<List<SocialMediaReadDto>>.SuccessResponse(info, 200, "successful"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 401, "Unauthorized"));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Invalid input"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Validation failed"));
+            }
+        }
+
+        [HttpGet("GetSocialMideaLinks")]
+        [Authorize]
+        public async Task<ActionResult> GetSocials([FromQuery] string userId)
+        {
+            try
+            {
+                var info = await _doctorService.GetSocialsService(userId);
+                return Ok(ApiResponse<List<SocialMediaReadDto>>.SuccessResponse(info, 200, "successful"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 401, "Unauthorized"));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Invalid input"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<object>.ErrorResponse(new List<string> { ex.Message }, 400, "Validation failed"));
+            }
+        }
     }
 }

@@ -22,41 +22,24 @@ namespace HealthEase.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
         private readonly FilesManagementHelper _filesManagementHelper;
+        private readonly IDoctorHelper _dctorHelper;
 
-        public DoctorService(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor, IMapper mapper, FilesManagementHelper filesManagementHelper)
+        public DoctorService(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor, IMapper mapper, FilesManagementHelper filesManagementHelper, IDoctorHelper dctorHelper)
         {
             _appDbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
             _filesManagementHelper = filesManagementHelper;
+            _dctorHelper = dctorHelper;
         }
 
         public async Task<DoctorBasicInfoCreateDto> UpdateBasicInfoService(DoctorBasicInfoCreateDto info)
         {
             try
             {
-                var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(userId, out var userGuid)) throw new ArgumentException("Invalid User ID");
-
-                var isDoctor = _httpContextAccessor.HttpContext.User.IsInRole("Doctor");
-
-                if (!isDoctor) throw new UnauthorizedAccessException("You are a not authorized access to perform this action");
-
-                var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
-
-                if (doctor == null)
-                {
-                    doctor = new DoctorModel
-                    {
-                        DoctorId = Guid.NewGuid(),
-                        UserId = userGuid
-                    };
-                    _appDbContext.Doctors.Add(doctor);
-                    await _appDbContext.SaveChangesAsync();
-                }
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync();
 
                 var existingInfo = await _appDbContext.DoctorBasicInfos.FirstOrDefaultAsync(b => b.DoctorId == doctor.DoctorId);
                 var existingMemberships = await _appDbContext.DoctorMemberships.Where(m => m.DoctorId == doctor.DoctorId).ToListAsync();
@@ -90,18 +73,12 @@ namespace HealthEase.Services
         {
             try
             {
-                var UId = userId ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(UId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(UId, out var userGuid)) throw new ArgumentException("Invalid User ID");
-
-
-                var isDoctor = _httpContextAccessor.HttpContext.User.IsInRole("Doctor");
 
                 if (isDoctor)
                 {
-                    var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
+                    var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
 
                     if (doctor == null) throw new KeyNotFoundException("Doctor not found");
 
@@ -125,28 +102,9 @@ namespace HealthEase.Services
         {
             try
             {
-                var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(userId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(userId, out var userGuid))
-                    throw new ArgumentException("Invalid User ID");
-
-                if (!_httpContextAccessor.HttpContext.User.IsInRole("Doctor"))
-                    throw new UnauthorizedAccessException("You are not authorized to perform this action");
-
-
-                var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
-                if (doctor == null)
-                {
-                    doctor = new DoctorModel
-                    {
-                        DoctorId = Guid.NewGuid(),
-                        UserId = userGuid
-                    };
-                    _appDbContext.Doctors.Add(doctor);
-                    await _appDbContext.SaveChangesAsync();
-                }
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync();
 
                 var existingInfo = await _appDbContext.DoctorBasicInfos.FirstOrDefaultAsync(b => b.DoctorId == doctor.DoctorId);
                 if (existingInfo == null)
@@ -186,27 +144,9 @@ namespace HealthEase.Services
         {
             try
             {
-                var UId = userId ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(UId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(UId, out var userGuid)) throw new ArgumentException("Invalid User ID");
-
-                var isDoctor = _httpContextAccessor.HttpContext.User.IsInRole("Doctor");
-                if (!isDoctor) throw new UnauthorizedAccessException("You are a not authorized access to perform this action");
-
-
-                var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
-                if (doctor == null)
-                {
-                    doctor = new DoctorModel
-                    {
-                        DoctorId = Guid.NewGuid(),
-                        UserId = userGuid
-                    };
-                    _appDbContext.Doctors.Add(doctor);
-                    await _appDbContext.SaveChangesAsync();
-                }
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
 
                 var existingMemberships = await _appDbContext.DoctorMemberships.Where(m => m.DoctorId == doctor.DoctorId).ToListAsync();
 
@@ -247,19 +187,11 @@ namespace HealthEase.Services
         {
             try
             {
-                var UId = userId ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(UId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(UId, out var userGuid)) throw new ArgumentException("Invalid User ID");
-
-                var isDoctor = _httpContextAccessor.HttpContext.User.IsInRole("Doctor");
-
-                if (!isDoctor) throw new UnauthorizedAccessException("You are a not authorized access to perform this action");
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
 
                 var newMemberships = new List<DoctorMembershipModel>();
-
-                var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
 
                 if (doctor == null) throw new UnauthorizedAccessException("Doctor profile not found");
 
@@ -280,28 +212,9 @@ namespace HealthEase.Services
 
             try
             {
-                var UId = userId ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(UId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(UId, out var userGuid)) throw new ArgumentException("Invalid User ID");
-
-                var isDoctor = _httpContextAccessor.HttpContext.User.IsInRole("Doctor");
-
-                if (!isDoctor) throw new UnauthorizedAccessException("You are a not authorized access to perform this action");
-
-                var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
-
-                if (doctor == null)
-                {
-                    doctor = new DoctorModel
-                    {
-                        DoctorId = Guid.NewGuid(),
-                        UserId = userGuid
-                    };
-                    _appDbContext.Doctors.Add(doctor);
-                    await _appDbContext.SaveChangesAsync();
-                }
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
 
                 var existingExperiences = await _appDbContext.DoctorExperiences.Where(Ex => Ex.DoctorId == doctor.DoctorId).ToListAsync();
 
@@ -365,17 +278,9 @@ namespace HealthEase.Services
         {
             try
             {
-                var UId = userId ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(UId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(UId, out var userGuid)) throw new ArgumentException("Invalid User ID");
-
-                var isDoctor = _httpContextAccessor.HttpContext.User.IsInRole("Doctor");
-
-                if (!isDoctor) throw new UnauthorizedAccessException("You are a not authorized access to perform this action");
-
-                var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
 
                 if (doctor == null) throw new UnauthorizedAccessException("Doctor profile not found");
 
@@ -395,28 +300,9 @@ namespace HealthEase.Services
 
             try
             {
-                var UId = userId ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(UId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(UId, out var userGuid)) throw new ArgumentException("Invalid User ID");
-
-                var isDoctor = _httpContextAccessor.HttpContext.User.IsInRole("Doctor");
-
-                if (!isDoctor) throw new UnauthorizedAccessException("You are a not authorized access to perform this action");
-
-                var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
-
-                if (doctor == null)
-                {
-                    doctor = new DoctorModel
-                    {
-                        DoctorId = Guid.NewGuid(),
-                        UserId = userGuid
-                    };
-                    _appDbContext.Doctors.Add(doctor);
-                    await _appDbContext.SaveChangesAsync();
-                }
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
 
                 var existingEducations = await _appDbContext.DoctorEducations.Where(Ex => Ex.DoctorId == doctor.DoctorId).ToListAsync();
 
@@ -468,17 +354,9 @@ namespace HealthEase.Services
         {
             try
             {
-                var UId = userId ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(UId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(UId, out var userGuid)) throw new ArgumentException("Invalid User ID");
-
-                var isDoctor = _httpContextAccessor.HttpContext.User.IsInRole("Doctor");
-
-                if (!isDoctor) throw new UnauthorizedAccessException("You are a not authorized access to perform this action");
-
-                var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
 
                 if (doctor == null) throw new UnauthorizedAccessException("Doctor profile not found");
 
@@ -499,28 +377,9 @@ namespace HealthEase.Services
 
             try
             {
-                var UId = userId ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(UId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(UId, out var userGuid)) throw new ArgumentException("Invalid User ID");
-
-                var isDoctor = _httpContextAccessor.HttpContext.User.IsInRole("Doctor");
-
-                if (!isDoctor) throw new UnauthorizedAccessException("You are a not authorized access to perform this action");
-
-                var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
-
-                if (doctor == null)
-                {
-                    doctor = new DoctorModel
-                    {
-                        DoctorId = Guid.NewGuid(),
-                        UserId = userGuid
-                    };
-                    _appDbContext.Doctors.Add(doctor);
-                    await _appDbContext.SaveChangesAsync();
-                }
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
 
                 var existingClinics = await _appDbContext.DoctorClinics.Where(Ex => Ex.DoctorId == doctor.DoctorId).ToListAsync();
 
@@ -608,23 +467,232 @@ namespace HealthEase.Services
         {
             try
             {
-                var UId = userId ?? _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isDoctor = _dctorHelper.IsDoctor();
 
-                if (string.IsNullOrEmpty(UId)) throw new UnauthorizedAccessException("User is not authorized");
-
-                if (!Guid.TryParse(UId, out var userGuid)) throw new ArgumentException("Invalid User ID");
-
-                var isDoctor = _httpContextAccessor.HttpContext.User.IsInRole("Doctor");
-
-                if (!isDoctor) throw new UnauthorizedAccessException("You are a not authorized access to perform this action");
-
-                var doctor = await _appDbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userGuid);
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
 
                 if (doctor == null) throw new UnauthorizedAccessException("Doctor profile not found");
 
                 var educations = await _appDbContext.DoctorClinics.Where(m => m.DoctorId == doctor.DoctorId).ToListAsync();
 
                 return _mapper.Map<List<DoctorClinicReadDto>>(educations);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        public async Task<List<DoctorBusinessHourReadDto>> AddUpdateBusinessHourService(List<DoctorBusinessHourCreateDto> businessHours, string userId)
+        {
+            using var transaction = await _appDbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+
+                var isDoctor = _dctorHelper.IsDoctor();
+
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
+
+                var existingbusinessHours = await _appDbContext.DoctorBusinessHours.Where(Ex => Ex.DoctorId == doctor.DoctorId).ToListAsync();
+
+                var existingDict = existingbusinessHours.ToDictionary(e => e.BusinessHourId, e => e);
+                foreach (var businessHourDto in businessHours)
+                {
+                    if (businessHourDto.BusinessHourId > 0 && existingDict.TryGetValue(businessHourDto.BusinessHourId, out var exist))
+                    {
+                        exist.Day = businessHourDto.Day;
+                        exist.FromUTC = businessHourDto.FromUTC;
+                        exist.ToUTC = businessHourDto.ToUTC;
+                    }
+                    else
+                    {
+                        var newBusinessHour = _mapper.Map<DoctorBusinessHourModel>(businessHourDto);
+                        newBusinessHour.DoctorId = doctor.DoctorId;
+                        _appDbContext.DoctorBusinessHours.Add(newBusinessHour);
+                    }
+
+                }
+
+                var toDelete = existingbusinessHours.Where(exp => !businessHours.Any(m => m.BusinessHourId == exp.BusinessHourId)).ToList();
+                if (toDelete.Any())
+                {
+                    _appDbContext.DoctorBusinessHours.RemoveRange(toDelete);
+                }
+
+                await _appDbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                var finalBusinessHour = await _appDbContext.DoctorBusinessHours.Where(m => m.DoctorId == doctor.DoctorId).ToListAsync();
+                return _mapper.Map<List<DoctorBusinessHourReadDto>>(finalBusinessHour);
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task<List<DoctorBusinessHourReadDto>> GetBusinessHoursService(string userId)
+        {
+            try
+            {
+                var isDoctor = _dctorHelper.IsDoctor();
+
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
+
+                if (doctor == null) throw new UnauthorizedAccessException("Doctor profile not found");
+
+                var businessHours = await _appDbContext.DoctorBusinessHours.Where(m => m.DoctorId == doctor.DoctorId).ToListAsync();
+
+                return _mapper.Map<List<DoctorBusinessHourReadDto>>(businessHours);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        public async Task<List<DoctorServiceReadDto>> AddUpdateServicesService(List<DoctorServiceCreateDto> services, string userId)
+        {
+
+            try
+            {
+                var isDoctor = _dctorHelper.IsDoctor();
+
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
+
+                var existingServices = await _appDbContext.DoctorServices.Where(Ex => Ex.DoctorId == doctor.DoctorId).ToListAsync();
+
+                var existingDict = existingServices.ToDictionary(e => e.Id, e => e);
+                foreach (var serviceDto in services)
+                {
+                    if (serviceDto.Id.HasValue && existingDict.TryGetValue(serviceDto.Id.Value, out var exist))
+                    {
+                        exist.Speciality = serviceDto.Speciality;
+                        exist.Service = serviceDto.Service;
+                        exist.Price = serviceDto.Price;
+                        exist.About = serviceDto.About;
+                    }
+                    else
+                    {
+                        var newService = new DoctorServiceModel
+                        {
+                            Speciality = serviceDto.Speciality,
+                            Service = serviceDto.Service,
+                            Price = serviceDto.Price,
+                            About = serviceDto.About,
+                            DoctorId = doctor.DoctorId
+                        };
+                        _appDbContext.DoctorServices.Add(newService);
+                    }
+
+                }
+
+                var toDelete = existingServices.Where(exp => !services.Any(m => m.Id == exp.Id)).ToList();
+                if (toDelete.Any())
+                {
+                    _appDbContext.DoctorServices.RemoveRange(toDelete);
+                }
+
+                await _appDbContext.SaveChangesAsync();
+
+
+                var finalSerivces = await _appDbContext.DoctorServices.Where(m => m.DoctorId == doctor.DoctorId).ToListAsync();
+                return _mapper.Map<List<DoctorServiceReadDto>>(finalSerivces);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<DoctorServiceReadDto>> GetServicesService(string userId)
+        {
+            try
+            {
+                var isDoctor = _dctorHelper.IsDoctor();
+
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
+
+                if (doctor == null) throw new UnauthorizedAccessException("Doctor profile not found");
+
+                var services = await _appDbContext.DoctorServices.Where(m => m.DoctorId == doctor.DoctorId).ToListAsync();
+
+                return _mapper.Map<List<DoctorServiceReadDto>>(services);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        public async Task<List<SocialMediaReadDto>> AddUpdateSocialMideaService(List<SocialMediaCreateDto> socials, string userId)
+        {
+            try
+            {
+                var isDoctor = _dctorHelper.IsDoctor();
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
+
+                var existingSocial = await _appDbContext.SocialMediaLinks.Where(s => s.DoctorId == doctor.DoctorId).ToListAsync();
+
+                var existingDict = existingSocial.ToDictionary(e => e.Id, e => e);
+
+                foreach (var socialDto in socials)
+                {
+                    if (socialDto.Id != 0 && existingDict.TryGetValue(socialDto.Id, out var exist))
+                    {
+                        exist.SocialMedia = socialDto.SocialMedia;
+                        exist.Link = socialDto.Link;
+                    }
+                    else
+                    {
+                        var newSocial = new SocialMediaModel
+                        {
+                            SocialMedia = socialDto.SocialMedia,
+                            Link = socialDto.Link,
+                            DoctorId = doctor.DoctorId
+                        };
+                        _appDbContext.SocialMediaLinks.Add(newSocial);
+                    }
+                }
+
+                var toDelete = existingSocial.Where(e => !socials.Any(s => s.Id == e.Id)).ToList();
+
+                if (toDelete.Any())
+                {
+                    _appDbContext.SocialMediaLinks.RemoveRange(toDelete);
+                }
+
+                await _appDbContext.SaveChangesAsync();
+
+
+                var finalSocials = await _appDbContext.SocialMediaLinks .Where(s => s.DoctorId == doctor.DoctorId).ToListAsync();
+
+                return _mapper.Map<List<SocialMediaReadDto>>(finalSocials);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<SocialMediaReadDto>> GetSocialsService(string userId)
+        {
+            try
+            {
+                var isDoctor = _dctorHelper.IsDoctor();
+
+                var doctor = await _dctorHelper.GetOrCreateDoctorAsync(userId);
+
+                if (doctor == null) throw new UnauthorizedAccessException("Doctor profile not found");
+
+                var socials = await _appDbContext.SocialMediaLinks.Where(m => m.DoctorId == doctor.DoctorId).ToListAsync();
+
+                return _mapper.Map<List<SocialMediaReadDto>>(socials);
             }
             catch (Exception)
             {
